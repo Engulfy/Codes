@@ -1444,7 +1444,7 @@ function bfs(graph, target, layer) {
     
     // TRUNCATE ARRAY
     function truncate(A, items) {
-        if (items < 0 || items < array_length(A)) {
+        if (items < 0 || items > array_length(A)) {
             error("Cannot truncate beyond the length of the array");
         } else {
             const new_array = [];
