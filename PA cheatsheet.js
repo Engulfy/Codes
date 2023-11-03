@@ -1,3 +1,738 @@
+PA ANS
+function helper(s, i) {
+    const c = char_at(s, i);
+    return is_undefined(c)
+    ? null
+    : pair(c, () => helper(s, i + 1));
+}
+    
+function char_stream(s) {
+    return helper(s, 0);
+}
+
+function solve(n, constraints) {
+    return accumulate((constraint, ss) =>
+        filter(s => char_at(s, head(constraint))
+        === tail(constraint), ss),
+        filter(s => string_length(s) === n, pa_words),constraints);
+}
+
+function eval_poly(poly) {
+    function p(x) {
+        return accumulate(
+                (t, sum) => head(t) * math_pow(x, tail(t)) + sum,
+                0,
+                poly);
+    }
+    return p;
+}
+
+function add_poly(poly1, poly2) {
+    if (is_null(poly1)) {
+        return poly2;
+    } else if (is_null(poly2)) {
+        return poly1;
+    } else {
+        const coeff1 = head(head(poly1));
+        const coeff2 = head(head(poly2));
+        const exp1 = tail(head(poly1));
+        const exp2 = tail(head(poly2));
+        if (exp1 === exp2) {
+            return coeff1 + coeff2 === 0
+            ? add_poly(tail(poly1), tail(poly2))
+            : pair(pair(coeff1 + coeff2, exp1),
+            add_poly(tail(poly1), tail(poly2)));
+        } else if (exp1 < exp2) {
+            return pair(head(poly1), add_poly(tail(poly1), poly2));
+        } else {
+            return pair(head(poly2), add_poly(poly1, tail(poly2)));
+        }   
+    }
+}
+
+function multiply_poly(poly1, poly2) {
+    return accumulate((p, q) => add_poly(p, q),null,
+                            map(t1 => map(t2 => pair(head(t1) * head(t2),tail(t1) + tail(t2)),poly2),
+                                                                                            poly1));
+}
+
+function alt_column_matrix(R, C) {
+    const M = [];
+    for (let r = 0; r < R; r = r + 1) {
+        M[r] = [];
+    }
+    let count = 1;
+    for (let c = 0; c < C; c = c + 1) {
+        if (c % 2 === 0) {
+            for (let r = 0; r < R; r = r + 1) {
+                M[r][c] = count;
+                count = count + 1;
+            }
+        } else {
+            for (let r = R - 1; r >= 0; r = r - 1) {
+                M[r][c] = count;
+                count = count + 1;
+            }
+        }
+    }
+    return M;
+}
+
+
+PA ANS
+
+function make_k_list(k, d) {
+    if (d === 0) {
+        return 0;
+    } else {
+        let klist = null;
+        for (let i = 0; i < k; i = i + 1) {
+            klist = pair(make_k_list(k, d - 1), klist);
+        }
+    return klist;
+    }
+}
+
+
+function make_postfix_exp(bae) {
+    const pfe = [];
+    let next = 0;
+    function convert(sub_bae) {
+        if (is_number(sub_bae)) {
+            pfe[next] = sub_bae;
+            next = next + 1;
+        } else {
+            convert(sub_bae[0]);
+            convert(sub_bae[2]);
+            pfe[next] = sub_bae[1];
+            next = next + 1;
+            }
+    }
+    convert(bae);
+    return pfe;
+}
+
+
+function eval_postfix_exp(pfe) {
+    let next = array_length(pfe) - 1;
+    function evaluate() {
+        const token = pfe[next];
+        next = next - 1;
+        if (is_number(token)) {
+            return token;
+        } else {
+            const op = token;
+            const right = evaluate();
+            const left = evaluate();
+            if (op === "+") {
+                return left + right;
+            } else if (op === "-") {
+                return left - right;
+            } else if (op === "*") {
+                return left * right;
+            } else {
+                return left / right;
+            }
+        }
+    }
+    return evaluate();
+}
+
+
+function delta_encode(L) {
+    function encode(xs, prev) {
+        return is_null(xs)
+        ? null
+        : pair(head(xs) - prev, encode(tail(xs), head(xs)));
+    }
+    return encode(L, 0);
+}
+
+function delta_decode(D) {
+    function decode(xs, prev) {
+        return is_null(xs)
+        ? null
+        : pair(prev + head(xs), decode(tail(xs), prev + head(xs)));
+    }
+    return decode(D, 0);
+}
+
+
+function runlength_encode(L) {
+    function encode(val, count, next) {
+        return is_null(next)
+        ? list(count === 1 ? val : pair(val, count))
+        : head(next) === val
+        ? encode(val, count + 1, tail(next))
+        : pair(count === 1 ? val : pair(val, count),
+        encode(head(next), 1, tail(next)));
+    }
+    return is_null(L)
+    ? null
+    : encode(head(L), 1, tail(L));
+}
+
+
+function overlap_area(aar1, aar2) {
+// [a, b] and [c, d] are the input intervals.
+    function overlap_length(a, b, c, d) {
+        return math_max(0, math_min(b, d) - math_max(a, c));
+        }
+    const x_overlap = overlap_length(
+                                get_x(aar1), get_x(aar1) + get_width(aar1),
+                                    get_x(aar2), get_x(aar2) + get_width(aar2));
+    const y_overlap = overlap_length(
+                                get_y(aar1), get_y(aar1) + get_height(aar1),
+                                    get_y(aar2), get_y(aar2) + get_height(aar2));
+    return x_overlap * y_overlap;
+}
+
+
+streamS
+
+function sum_primes(a, b) {
+    function iter(count, accum) {
+        if (count > b) {
+            return accum;
+        } else if (is_prime(count)) {
+            return iter(count + 1, count + accum);
+        } else {
+            return iter(count + 1, accum);
+        }
+    }
+    return iter(a, 0);
+}
+
+streamed version;
+function sum_primes(a, b) {
+    return accumulate(
+    (x, y) => x + y,
+    0,
+    filter(is_prime, enum_list(a, b))
+    );
+}
+
+fibgen using streams
+function fibgen(a, b) {
+    return pair(a, () => fibgen(b, a + b));
+}
+const fibs = fibgen(0, 1);
+
+const fibs =pair(0,
+                    () => pair(1,
+                        () => add_streams(
+                                stream_tail(fibs),
+                                            fibs)));
+
+more and more streams
+function more(a, b) {
+    return (a > b)
+    ? more(1, 1 + b)
+    : pair(a, () => more(a + 1, b));
+}
+const more_and_more = more(1, 1);
+
+
+replace in stream
+function replace(s, a, b) {
+    return is_null(s)
+    ? null
+    : pair((head(s) === a) ? b : head(s),
+    () => replace(stream_tail(s), a, b));
+}
+
+function list_to_inf_stream(xs) {
+    function helper(ys) {
+        return is_null(ys)
+        ? helper(xs)
+        : pair(head(ys), () => helper(tail(ys)));
+    }
+    return is_null(xs) ? null : helper(xs);
+}
+const s = list_to_inf_stream(list(1, 2, 3));
+
+function memo_fun(fun) {
+    let already_run = false;
+    let result = undefined;
+    function mfun() {
+        if (!already_run) {
+            result = fun();
+            already_run = true;
+            return result;
+        } else {
+            return result;
+        }
+    }
+    return mfun;
+}
+
+primes stream
+const primes =pair(2,
+                    () => stream_filter(is_prime,
+                                integers_from(3)));
+                                
+sieve using streams
+function sieve(s) {
+    return pair(head(s),
+            () => sieve(stream_filter(
+                    x => !is_divisible(x, head(s)),
+                                    stream_tail(s))));
+}
+const primes = sieve(integers_from(2));   
+
+sqrt funct
+function average(a, b) {
+    return (a + b) / 2;
+}
+function improve(guess, x) {
+    return average(guess, x / guess);
+}
+function sqrt_stream(x) {
+    const guesses = pair(1.0,
+                () => stream_map(
+                        guess => improve(guess, x),
+                                            guesses));
+    return guesses;
+}
+
+1-1/3+1/5+...
+function pi_summands(n) {
+    return pair(1 / n,
+            () => stream_map(x => -x,
+                    pi_summands(n + 2)));
+}
+
+
+function zip_streams(s1, s2) {
+
+    return pair(head(s1), () => zip_streams(s2, stream_tail(s1)));
+
+}
+
+function zip_list_streams(xs){
+    return pair(head(head(xs)), 
+                ()=> zip_list_streams(append(tail(xs), 
+                                             list(stream_tail(head(xs))))));
+}
+
+function partial_sums1(s) {
+
+    // YOUR SOLUTION HERE
+    const list = integers_from(1);
+    function n_sum(n){
+        return n === 0 
+        ? 0 
+        : stream_ref(s, n - 1) + n_sum(n - 1);
+    }
+    
+    return stream_map(n_sum, list);
+
+}
+
+function partial_sum(s){
+    return pair(head(s), () => add_streams(stream_tail(s), partial_sum(s)));
+}
+
+
+function rick_the_rabbit ( n ) {
+    return n < 0
+    ? 0
+    : n === 0
+    ? 1
+    : rick_the_rabbit ( n - 1) // Rick hops
+    +
+    rick_the_rabbit ( n - 2) // Rick skips
+    +
+    rick_the_rabbit ( n - 3); // Rick jumps
+}
+
+coin change
+function first_denomination ( kinds_of_coins ) {
+    return kinds_of_coins === 1 ? 5 :
+    kinds_of_coins === 2 ? 10 :
+    kinds_of_coins === 3 ? 20 :
+    kinds_of_coins === 4 ? 50 :
+    kinds_of_coins === 5 ? 100 : 0;
+}
+function cc ( amount , kinds_of_coins ) {
+    return amount === 0
+    ? 1
+    : amount < 0 || kinds_of_coins === 0
+    ? 0
+    : cc ( amount -
+    first_denomination( kinds_of_coins ) ,
+    kinds_of_coins )
+    +
+    cc ( amount , kinds_of_coins - 1);
+}
+
+simplified rational number
+function gcd(a, b) {
+    return b === 0 ? a : gcd(b, a % b);
+}
+function make_rat(n, d) {
+    const g = gcd(n, d);
+    return pair(n / g, d / g);
+}
+
+
+//LISTS
+iterative length counter
+function length_iter(xs) {
+    function len(ys, counted_so_far) {
+    return is_null(ys)
+    ? counted_so_far
+    : len(tail(ys), counted_so_far + 1);
+    }
+return len(xs, 0);
+}
+
+reverse list
+function reverse2(lst) {
+    return is_null(lst)
+    ? null
+    : append(reverse2(tail(lst)),
+    list(head(lst)));
+}
+
+function reverse3(xs) {
+    function rev(original, reversed) {
+        return is_null(original)
+        ? reversed
+        : rev(tail(original),
+        pair(head(original), reversed));
+    }
+    return rev(xs, null);
+}
+
+scale list
+function scale_list(xs, k) {
+    return is_null(xs)
+    ? null
+    : pair(k * head(xs),
+    scale_list(tail(xs), k));
+}
+
+//TREES
+counting in tree
+function count_data_items(tree) {
+    return is_null(tree)
+    ? 0
+    : ( is_list(head(tree))
+    ? count_data_items(head(tree))
+    : 1 )
+    +
+    count_data_items(tail(tree));
+}
+
+scaling tree
+function scale_tree(tree, k) {
+    return map(sub_tree =>
+                    !is_list(sub_tree)
+                    ? k * sub_tree
+                    : scale_tree(sub_tree, k),
+                    tree);
+}
+
+map tree
+function map_tree(f, tree) {
+    return map(sub_tree =>
+                    !is_list(sub_tree)
+                    ? f(sub_tree)
+                    : map_tree(f, sub_tree),
+                    tree);
+}
+
+
+// LISTS
+smallest element in list
+function smallest(xs) {
+    return accumulate((x, y) => x < y ? x : y,
+    head(xs), tail(xs));
+}
+
+better drop funct
+function drop(xs, n) {
+                    return n === 0
+                    ? xs
+                    : drop(tail(xs),n-1);
+            }
+
+destructive append
+function d_append(xs, ys) {
+    if (is_null(xs)) {
+        return ys;
+    } else {
+        set_tail(xs, d_append(tail(xs), ys));
+        return xs;
+    }
+}
+
+destructive map
+function d_map(fun, xs) {
+    if (!is_null(xs)) {
+        set_head(xs, fun(head(xs)));
+        d_map(fun, tail(xs));
+    } else { }
+}
+
+//ARRAYS
+
+create array from 1 to n
+function array_1_to_n(n) {
+    const a = [];
+    function iter(i) {
+        if (i < n) {
+            a[i] = i + 1;
+            iter(i + 1);
+            }
+            }
+            iter(0);
+    return a;
+}
+
+mapping array
+function map_array(f, arr) {
+    const len = array_length(arr);
+    function iter(i) {
+        if (i < len) {
+        arr[i] = f(arr[i]);
+        iter(i + 1);
+    }
+    }
+    iter(0);
+}
+
+reverse array
+function swap(A, i, j) {
+    let temp = A[i];
+    A[i] = A[j];
+    A[j] = temp;
+}
+function reverse_array(A) {
+    const len = array_length(A);
+    const half_len = math_floor(len / 2);
+    for (let i = 0; i < half_len; i = i + 1) {
+        swap(A, i, len - 1 - i);
+    }
+}
+
+create matrix of row x col
+function zero_matrix(rows, cols) {
+    const M = [];
+    for (let r = 0; r < rows; r = r + 1) {
+        M[r] = [];
+        for (let c = 0; c < cols; c = c + 1) {
+            M[r][c] = 0;
+        }
+    }
+    return M;
+}
+
+matrix mulitplication of 3 by 3
+function matrix_multiply_3x3(A, B) {
+    const M = [];
+    for (let r = 0; r < 3; r = r + 1) {
+        M[r] = [];
+        for (let c = 0; c < 3; c = c + 1) {
+            M[r][c] = 0;
+            for (let k = 0; k < 3; k = k + 1) {
+                M[r][c] = M[r][c] + A[r][k] * B[k][c];
+            }
+        }
+    }
+    return M;
+}
+
+// SEARCHING
+finding element(returns true or false)
+function linear_search(A, v) {
+    const len = array_length(A);
+    let i = 0;
+    while (i < len && A[i] !== v) {
+        i = i + 1;
+    }
+    return (i < len);
+}
+
+binary search of list(returns true or false)
+function binary_search(A, v) {
+    function search(low, high) {
+        if (low > high) {
+            return false;
+        } else {
+            const mid = math_floor((low + high) / 2);
+            return (v === A[mid]) ||
+            (v < A[mid]
+            ? search(low, mid - 1)
+            : search(mid + 1, high));
+        }
+    }
+    return search(0, array_length(A) - 1);
+}
+
+loop version binary search
+function binary_search(A, v) {
+    let low = 0;
+    let high = array_length(A) - 1;
+    while (low <= high) {
+        const mid = math_floor((low + high) / 2 );
+        if (v === A[mid]) {
+            break;
+        } else if (v < A[mid]) {
+            high = mid - 1;
+        } else {
+            low = mid + 1;
+        }
+    }
+    return (low <= high);
+}
+
+
+selection sort for array
+function selection_sort(A) {
+    const len = array_length(A);
+    for (let i = 0; i < len - 1; i = i + 1) {
+        let min_pos = find_min_pos(A, i, len - 1);
+        swap(A, i, min_pos);
+    }
+}
+function find_min_pos(A, low, high) {
+    let min_pos = low;
+    for (let j = low + 1; j <= high; j = j + 1) {
+        if (A[j] < A[min_pos]) {
+            min_pos = j;
+        }
+    }
+    return min_pos;
+}
+
+insertion sort for array
+function insertion_sort(A) {
+    const len = array_length(A);
+    for (let i = 1; i < len; i = i + 1) {
+        let j = i - 1;
+        while (j >= 0 && A[j] > A[j + 1]) {
+            swap(A, j, j + 1);
+            j = j - 1;
+        }
+    }
+}
+
+
+function merge_sort(A) {
+    merge_sort_helper(A, 0, array_length(A) - 1);
+}
+function merge_sort_helper(A, low, high) {
+    if (low < high) {
+    const mid = math_floor((low + high) / 2);
+    merge_sort_helper(A, low, mid);
+    merge_sort_helper(A, mid + 1, high);
+    merge(A, low, mid, high);
+    }
+}
+
+function merge(A, low, mid, high) {
+    const B = []; // temporary array
+    let left = low;
+    let right = mid + 1;
+    let Bidx = 0;
+    while (left <= mid && right <= high) {
+        if (A[left] <= A[right]) {
+            B[Bidx] = A[left];
+            left = left + 1;
+        } else {
+            B[Bidx] = A[right];
+            right = right + 1;
+        }
+        Bidx = Bidx + 1;
+    }
+    while (left <= mid) {
+        B[Bidx] = A[left];
+        Bidx = Bidx + 1;
+        left = left + 1;
+    }
+    while (right <= high) {
+        B[Bidx] = A[right];
+        Bidx = Bidx + 1;
+        right = right + 1;
+    }
+    for (let k = 0; k < high - low + 1; k = k + 1) {
+        A[low + k] = B[k];
+    }
+}
+
+memoization
+function memoize(f) {
+    const mem = [];
+    function mf(x) {
+        if (mem[x] !== undefined) {
+        return mem[x];
+    } else {
+        const result = f(x);
+        mem[x] = result;
+        return result;
+        }
+    }
+    return mf;
+}
+
+n choose k
+function choose(n, k) {
+    return k > n
+    ? 0
+    : k === 0 || k === n
+    ? 1
+    : choose(n - 1, k) + choose(n - 1, k - 1);
+}
+
+
+const mem = [];
+function read(n, k) {
+    return mem[n] === undefined
+    ? undefined
+    : mem[n][k];
+}
+function write(n, k, value) {
+    if (mem[n] === undefined) {
+    mem[n] = [];
+    }
+    mem[n][k] = value;
+}
+
+memoize n choose k
+function mchoose(n, k) {
+    if (read(n, k) !== undefined) {
+        return read(n, k);
+    } else {
+        const result = k > n ? 0
+        : k === 0 || k === n ? 1
+        : mchoose(n - 1, k) +
+        mchoose(n - 1, k - 1);
+        write(n, k, result);
+        return result;
+    }
+}
+
+
+partial sum of streams
+function partial_sums(s) {
+
+    // YOUR SOLUTION HERE
+    function add_streams(s1, s2) {
+        return is_null(s1)
+        ? s2
+        : is_null(s2)
+        ? s1
+        : pair(head(s1) + head(s2),
+                    () => add_streams(stream_tail(s1),
+                                             stream_tail(s2)));
+        }
+    return pair(head(s),
+                () => add_streams(stream_tail(s),
+                                  partial_sums(s)));
+}
+
 // PA cheatsheet
 
 /**
