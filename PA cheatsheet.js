@@ -378,7 +378,7 @@ function make_rat(n, d) {
 
 
 //LISTS
-iterative length counter
+iterative length counter 
 function length_iter(xs) {
     function len(ys, counted_so_far) {
     return is_null(ys)
@@ -486,9 +486,9 @@ function array_1_to_n(n) {
         if (i < n) {
             a[i] = i + 1;
             iter(i + 1);
-            }
-            }
-            iter(0);
+        }
+    }
+    iter(0);
     return a;
 }
 
