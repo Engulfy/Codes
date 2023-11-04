@@ -1540,7 +1540,7 @@ function bfs(graph, target, layer) {
         // CREATE MATRIX CREATE 2D ARRAY i x j matrix
         function create_matrix(i, j, f) {
             const ans = [];
-            const counter = 0;
+            let counter = 0;
         
             for (let x = 0; x < i; x = x + 1) {
                 ans[x] = [];
