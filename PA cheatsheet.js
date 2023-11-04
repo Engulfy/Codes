@@ -223,6 +223,7 @@ const fibs =pair(0,
                                             fibs)));
 
 more and more streams: 1,1,2,1,2,3...
+
 function more(a, b) {
     return (a > b)
     ? more(1, 1 + b)
@@ -238,6 +239,8 @@ function replace(s, a, b) {
     : pair((head(s) === a) ? b : head(s),
     () => replace(stream_tail(s), a, b));
 }
+
+list to infinty stream:1,2,3,1,2,3,1,2,3,1,2,3...
 
 function list_to_inf_stream(xs) {
     function helper(ys) {
