@@ -12,9 +12,8 @@ function char_stream(s) {
 
 function solve(n, constraints) {
     return accumulate((constraint, ss) =>
-        filter(s => char_at(s, head(constraint))
-        === tail(constraint), ss),
-        filter(s => string_length(s) === n, pa_words),constraints);
+                    filter(s => char_at(s, head(constraint))=== tail(constraint), ss),
+                                filter(s => string_length(s) === n, pa_words),constraints);
 }
 
 function eval_poly(poly) {
