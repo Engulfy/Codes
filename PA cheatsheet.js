@@ -222,7 +222,7 @@ const fibs =pair(0,
                                 stream_tail(fibs),
                                             fibs)));
 
-more and more streams
+more and more streams: 1,1,2,1,2,3...
 function more(a, b) {
     return (a > b)
     ? more(1, 1 + b)
