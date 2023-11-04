@@ -272,7 +272,7 @@ const primes =pair(2,
                     () => stream_filter(is_prime,
                                 integers_from(3)));
                                 
-sieve using streams
+sieve using streams to generate prime
 function sieve(s) {
     return pair(head(s),
             () => sieve(stream_filter(
