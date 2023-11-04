@@ -187,7 +187,7 @@ function overlap_area(aar1, aar2) {
 }
 
 
-streamS
+// streams
 
 function sum_primes(a, b) {
     function iter(count, accum) {
@@ -202,7 +202,6 @@ function sum_primes(a, b) {
     return iter(a, 0);
 }
 
-streamed version;
 function sum_primes(a, b) {
     return accumulate(
     (x, y) => x + y,
