@@ -499,7 +499,7 @@ function map_array(f, arr) {
         if (i < len) {
         arr[i] = f(arr[i]);
         iter(i + 1);
-    }
+        }
     }
     iter(0);
 }
